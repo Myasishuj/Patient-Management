@@ -1,0 +1,11 @@
+### Put/Patch Update Patient Information
+PUT http://localhost:4000/patients/1187024d-55c7-49c5-a8c9-88f0fa0a7532
+Content-type: application/json
+
+{
+  "name": "buh2",
+  "email": "buhr232@example.com",
+  "address": "penang is kedah1212",
+  "birthDate": "2034-09-04"
+}
+###

@@ -1,0 +1,12 @@
+###POSTrequest to patient/ Create new patient
+POST http://localhost:4000/patients
+Content-type:application/json
+
+{
+  "name": "buh1",
+  "email": "buhr232@example.com",
+  "address": "penang is kedah1212",
+  "birthDate": "2034-09-04",
+  "registerDate":"2025-06-09"
+}
+###
