@@ -39,7 +39,6 @@ public class BillingServiceGrpcClient {
         // Initializes the blocking stub for making synchronous RPC calls
         blockingStub = BillingServiceGrpc.newBlockingStub(channel);
     }
-
     public BillingResponse createBillingAccount(String patientId, String name, String email) {
         BillingRequest request = BillingRequest.newBuilder().setPatientId(patientId).setName(name).setEmail(email).build();
 
@@ -47,4 +46,5 @@ public class BillingServiceGrpcClient {
         log.info("Recieved BillingResponse from BillingServiceGrpc : {}", response);
         return response;
     }
+
 }

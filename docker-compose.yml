@@ -1,0 +1,60 @@
+# ONLY USE WHEN NOT USING INTELLIJ GUI
+
+version: '3.8'
+
+services:
+  patient-service:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service
+    ports:
+      - "4000:4000"
+    depends_on:
+      patient-service-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://patient-service-db:5432/db
+      - SPRING_DATASOURCE_USERNAME=admin_user
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - BILLING_SERVICE_ADDRESS=billing-service
+      - BILLING_SERVICE_GRPC_PORT=9001
+    networks:
+      - internal
+
+  patient-service-db:
+    image: postgres:latest
+    container_name: patient-service-db
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5000:5432"
+    volumes:
+      - /c/Users/chenh/db_volumes/patient-service-db:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin_user -d db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+
+  billing-service:
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    image: billing-service:latest
+    container_name: billing-service
+    ports:
+      - "4001:4001"
+      - "9001:9001"
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge
