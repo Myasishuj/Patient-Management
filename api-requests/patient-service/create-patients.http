@@ -3,9 +3,9 @@ POST http://localhost:4000/patients
 Content-type:application/json
 
 {
-  "name": "buh1_with Accoutn",
-  "email": "buhr23234422@example.com",
-  "address": "penang is kedah1212",
+  "name": "buh3_TEST KAFKA",
+  "email": "KAFKAdadwddwaA3@example.com",
+  "address": "penang is KAFKA2",
   "birthDate": "2034-09-04",
   "registerDate":"2025-06-09"
 }

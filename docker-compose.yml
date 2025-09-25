@@ -20,6 +20,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - BILLING_SERVICE_ADDRESS=billing-service
       - BILLING_SERVICE_GRPC_PORT=9001
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     networks:
       - internal
 
