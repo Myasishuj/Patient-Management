@@ -25,8 +25,8 @@ public class BillingServiceGrpcClient {
 
     // Constructor injects values from application.properties or defaults
     public BillingServiceGrpcClient(
-            @Value("${billing.service.address:localhost}") String serverAddress, // <-- typo fix: missing '}' before closing quote
-            @Value("${billing.service.grpc.port:9001}") int serverPort           // <-- same here
+            @Value("${billing.service.address:localhost}") String serverAddress,
+            @Value("${billing.service.grpc.port:9001}") int serverPort
     ) {
         // Logs the target gRPC server address and port for visibility
         log.info("Connecting to BillingServiceGrpc server on address {} and port {}", serverAddress, serverPort);
@@ -43,7 +43,8 @@ public class BillingServiceGrpcClient {
         BillingRequest request = BillingRequest.newBuilder().setPatientId(patientId).setName(name).setEmail(email).build();
 
         BillingResponse response = blockingStub.createBillingAccount(request);
-        log.info("Recieved BillingResponse from BillingServiceGrpc : {}", response);
+        log.info("⬅️ Recieved BillingResponse from BillingServiceGrpc : accountId={}, status={}",
+                response.getAccuntId(), response.getStatus());
         return response;
     }
 

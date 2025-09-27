@@ -4,11 +4,12 @@ import com.pm.patientservice.dto.PatientRequestDto;
 import com.pm.patientservice.dto.PatientResponseDto;
 import com.pm.patientservice.exception.PatientNotFoundException;
 import com.pm.patientservice.grpc.BillingServiceGrpcClient;
-import com.pm.patientservice.kafka.kafkaProducer;
+import com.pm.patientservice.kafka.KafkaProducer;
 import com.pm.patientservice.mapper.PatientMapper;
 import com.pm.patientservice.model.Patient;
 import com.pm.patientservice.repository.PatientRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,16 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-
+@Slf4j
 @Service
 public class PatientService {
 
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
-    private final kafkaProducer kafkaProducer;
+    private final KafkaProducer kafkaProducer;
 
     public PatientService(PatientRepository patientRepository,
-                          BillingServiceGrpcClient billingServiceGrpcClient, kafkaProducer kafkaProducer) {
+                          BillingServiceGrpcClient billingServiceGrpcClient, KafkaProducer kafkaProducer) {
 
         this.patientRepository = patientRepository;
         this.billingServiceGrpcClient = billingServiceGrpcClient;
@@ -41,15 +42,24 @@ public class PatientService {
                 .map(PatientMapper::toDto).toList();
     }
 
-    public PatientResponseDto  createPatient (PatientRequestDto patient){
+    public PatientResponseDto createPatient(PatientRequestDto patient) {
         if (patientRepository.existsByEmail(patient.getEmail())) {
-            throw new EmailAlreadyExistsException("A patient with this email already exists "+
-                    patient.getEmail());
+            throw new EmailAlreadyExistsException(
+                    "A patient with this email already exists " + patient.getEmail()
+            );
         }
         Patient newPatient = patientRepository.save(PatientMapper.toModel(patient));
 
-        billingServiceGrpcClient.createBillingAccount(String.valueOf(newPatient.getId()),newPatient.getName(), newPatient.getEmail());
-        System.out.println("Created Patient with Id : "+newPatient.getId());
+        billingServiceGrpcClient.createBillingAccount(
+                String.valueOf(newPatient.getId()),
+                newPatient.getName(),
+                newPatient.getEmail()
+        );
+
+
+        log.info("Sending Kafka event for patient with ID: {}, Name: {}, Email: {}",
+                newPatient.getId(), newPatient.getName(), newPatient.getEmail());
+
         kafkaProducer.sendEvent(newPatient);
 
         return PatientMapper.toDto(newPatient);
