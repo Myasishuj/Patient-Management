@@ -1,13 +1,50 @@
+# ==============================================
+# SERVER CONFIGURATION
+# ==============================================
 server:
-  port: 4004
+  port: 4004             # The API Gateway will start on port 4004 instead of the default 8080
 
+# ==============================================
+# SPRING CLOUD GATEWAY CONFIGURATION
+# ==============================================
 spring:
   cloud:
     gateway:
-      routes:
-        - id: patient-service-route
-          uri: http://patient-service:4000
-          predicates:
-            - path=/api/patients/**
-          filters:
-            - strip-prefix=1
+      server:
+        webflux:         # This enables reactive (non-blocking) WebFlux routing
+          routes:        # List of routing rules for the API Gateway
+
+            # ----------------------------------
+            # 1️⃣ Route to the Patient Service API
+            # ----------------------------------
+            - id: patient-service-route          # A unique ID to identify this route
+              uri: http://patient-service:4000   # The target service (microservice) this route will forward requests to
+                # "patient-service" refers to the container/service name in Docker Compose
+              # ":4000" is the internal port exposed by that service
+
+              predicates:
+                - Path=/api/patients/**          # Any incoming request whose path starts with /api/patients/
+                # will be routed to the "patient-service" microservice
+
+              filters:
+                - StripPrefix=1                  # Removes the first part of the URL path (/api)
+                  # Example:
+                  #   Incoming:  /api/patients/getAll
+                #   Forwarded: /patients/getAll
+
+            # ----------------------------------
+            # 2️⃣ Route for API documentation (Swagger)
+            # ----------------------------------
+            - id: api-docs-patient-route         # Another route, specifically for serving OpenAPI/Swagger docs
+              uri: http://patient-service:4000   # Same patient-service backend
+
+              predicates:
+                - Path=/api-docs/patients        # When the request path is /api-docs/patients
+
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs
+                  # Rewrites the path before forwarding
+                  # Example:
+                  #   Incoming:  /api-docs/patients
+                  #   Forwarded: /v3/api-docs
+                # This makes the Swagger UI accessible through the gateway
