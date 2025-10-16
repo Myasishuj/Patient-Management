@@ -145,7 +145,7 @@ services:
     ports:
       - "5001:5432"
     volumes:
-#      - patient-management-data:/var/lib/postgresql/data
+      #      - patient-management-data:/var/lib/postgresql/data
       - ./db_volumes/auth-service-db:/var/lib/postgresql/data
     networks:
       - internal
