@@ -1,10 +1,11 @@
 ###POSTrequest to patient/ Create new patient
-POST http://localhost:4004/api/patients
+POST http://lb-2568a9f2.elb.localhost.localstack.cloud    :4004/api/patients
+Authorization: Bearer {{token}}
 Content-type:application/json
 
 {
   "name": "buh4_TEST KAFKA",
-  "email": "testkafkaconsumer6@example.com",
+  "email": "tdwwdawaconsumer6@example.com",
   "address": "penang is KAFKA2",
   "birthDate": "2034-09-04",
   "registerDate":"2025-06-09"

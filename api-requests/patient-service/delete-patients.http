@@ -1,5 +1,5 @@
-### GET request to example server
-DELETE http://localhost:4000/patients/123e4567-e89b-12d3-a456-426614174000
-
+### Delete patient user
+DELETE http://lb-2568a9f2.elb.localhost.localstack.cloud:4004/api/patients/123e4567-e89b-12d3-a456-426614174000
+Authorization: Bearer {{token}}
 
 ###

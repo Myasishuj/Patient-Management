@@ -13,12 +13,13 @@ spring:
       server:
         webflux:  # Enables reactive (non-blocking) WebFlux routing
           routes:  # List of routing rules for the API Gateway
-            - id: auth-service
+            - id: auth-service-route
               uri: http://auth-service:4005
               predicates:
                 - Path=/auth/**
               filters:
                 - StripPrefix=1
+
             # ----------------------------------
             # 1️⃣ Route to the Patient Service API
             # ----------------------------------
@@ -36,20 +37,22 @@ spring:
                   # Example:
                   #   Incoming:  /api/patients/getAll
                 #   Forwarded: /patients/getAll
+                - JwtValidation
 
             # ----------------------------------
             # 2️⃣ Route for API documentation (Swagger)
             # ----------------------------------
             - id: api-docs-patient-route  # Route for serving OpenAPI/Swagger docs
               uri: http://patient-service:4000  # Same patient-service backend
-
               predicates:
                 - Path=/api-docs/patients  # Matches /api-docs/patients requests
-
               filters:
                 - RewritePath=/api-docs/patients,/v3/api-docs
-                  # Rewrites the path before forwarding
-                  # Example:
-                  #   Incoming:  /api-docs/patients
-                  #   Forwarded: /v3/api-docs
-                # Enables accessing Swagger UI through the gateway
+
+
+            - id: api-docs-auth-route
+              uri: http://auth-service:4005
+              predicates:
+              - Path=/api-docs/auth
+              filters:
+                - RewritePath=/api-docs/auth,/v3/api-docs

@@ -133,6 +133,8 @@ services:
     networks:
       - internal
 
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:4005
 
   auth-service-db:
     image: postgres:15
@@ -162,10 +164,11 @@ services:
       dockerfile: Dockerfile
     image: auth-service:latest
     container_name: auth-service
+
     restart: on-failure
 
-    ports:
-      - "4005:4005"
+#    ports:
+#      - "4005:4005"
     environment:
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-db:5432/db
@@ -173,6 +176,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_SQL_INIT_MODE=always
       - JWT_SECRET=x8aRLBjC1V9Tz1IuE3o47gCN88TwOiD4g2KuJX5u6H7EJ5PSpvnM0NYlcbL0W3Dc
+
 
     networks:
       - internal

@@ -1,0 +1,58 @@
+# ==============================================
+# SERVER CONFIGURATION
+# ==============================================
+server:
+  port: 4004  # The API Gateway will start on port 4004 instead of the default 8080
+
+# ==============================================
+# SPRING CLOUD GATEWAY CONFIGURATION
+# ==============================================
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:  # Enables reactive (non-blocking) WebFlux routing
+          routes:  # List of routing rules for the API Gateway
+            - id: auth-service-route
+              uri: http://host.docker.internal:4005
+              predicates:
+                - Path=/auth/**
+              filters:
+                - StripPrefix=1
+
+            # ----------------------------------
+            # 1️⃣ Route to the Patient Service API
+            # ----------------------------------
+            - id: patient-service-route  # Unique ID for this route
+              uri: http://host.docker.internal:4000  # Target microservice to forward requests
+              # "patient-service" = service name in Docker Compose
+              # ":4000" = internal port exposed by that service
+
+              predicates:
+                - Path=/api/patients/**  # Matches requests starting with /api/patients/
+                # Forwards them to the "patient-service" microservice
+
+              filters:
+                - StripPrefix=1  # Removes the first path segment (/api)
+                  # Example:
+                #   Incoming:  /api/patients/getAll
+                #   Forwarded: /patients/getAll
+                - JwtValidation
+
+            # ----------------------------------
+            # 2️⃣ Route for API documentation (Swagger)
+            # ----------------------------------
+            - id: api-docs-patient-route  # Route for serving OpenAPI/Swagger docs
+              uri: http://host.docker.internal:4000  # Same patient-service backend
+              predicates:
+                - Path=/api-docs/patients  # Matches /api-docs/patients requests
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs
+
+
+            - id: api-docs-auth-route
+              uri: http://host.docker.internal:4005
+              predicates:
+                - Path=/api-docs/auth
+              filters:
+                - RewritePath=/api-docs/auth,/v3/api-docs

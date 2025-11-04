@@ -23,7 +23,7 @@ public class BillingServiceGrpcClient {
     // The blocking (synchronous) stub generated from the .proto definition
     private final BillingServiceGrpc.BillingServiceBlockingStub blockingStub;
 
-    // Constructor injects values from application.properties or defaults
+    // Constructor injects values from application.properties
     public BillingServiceGrpcClient(
             @Value("${billing.service.address:localhost}") String serverAddress,
             @Value("${billing.service.grpc.port:9001}") int serverPort
@@ -32,7 +32,8 @@ public class BillingServiceGrpcClient {
         log.info("Connecting to BillingServiceGrpc server on address {} and port {}", serverAddress, serverPort);
 
         // Creates a gRPC channel to the given server (plaintext = no TLS)
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(serverAddress, serverPort)
+        ManagedChannel channel = ManagedChannelBuilder
+                .forAddress(serverAddress, serverPort)
                 .usePlaintext()
                 .build();
 
